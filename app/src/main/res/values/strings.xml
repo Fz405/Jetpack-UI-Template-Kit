@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">ComposeUI KIT</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+    <!-- Auth Strings -->
+    <string name="login_title">Welcome Back</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_password">Password</string>
+    <string name="action_login">Login</string>
+    <string name="action_retry">Try Again</string>
+    <string name="prompt_no_account">Don\'t have an account? Sign Up</string>
+    <!-- SignUp Strings -->
+    <string name="signup_title">Create Account</string>
+    <string name="label_name">Full Name</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="action_signup">Sign Up</string>
+    <string name="prompt_have_account">Already have an account? Login</string>
+</resources>
