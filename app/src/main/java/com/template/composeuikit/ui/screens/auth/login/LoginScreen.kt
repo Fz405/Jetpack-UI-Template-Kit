@@ -1,17 +1,28 @@
 package com.template.composeuikit.ui.screens.auth.login
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.template.composeuikit.R
+import com.template.composeuikit.ui.components.PrimaryButton
 import com.template.composeuikit.ui.components.PrimaryTextField
 
 // 1. Stateful Wrapper (Decoupled from DI frameworks for CodeCanyon)
@@ -20,9 +31,19 @@ fun LoginScreen(
     modifier: Modifier = Modifier, // MUST BE FIRST
     viewModel: LoginViewModel = viewModel(), // STANDARD FACTORY
     onNavigateToSignUp: () -> Unit = {},
-    onNavigateToHome: () -> Unit = {}
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToForgotPassword: () -> Unit = {},
+    onNavigateToOtp: (String) -> Unit = {}
+
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(state) {
+        if (state is LoginUiState.NavigateToOtp) {
+            val email = (state as LoginUiState.NavigateToOtp).email
+            onNavigateToOtp(email)
+            viewModel.onEvent(LoginUiEvent.OnNavigationHandled)
+        }
+    }
 
     LoginStatelessScreen(
         modifier = modifier,
@@ -30,6 +51,7 @@ fun LoginScreen(
         onEvent = { event ->
             when (event) {
                 is LoginUiEvent.OnSignUpClicked -> onNavigateToSignUp()
+                is LoginUiEvent.OnForgotPasswordClicked -> onNavigateToForgotPassword()
                 // Hook in actual success navigation here when implemented
                 else -> viewModel.onEvent(event)
             }
@@ -76,6 +98,9 @@ private fun LoginStatelessScreen(
                     onEvent = onEvent
                 )
             }
+            is LoginUiState.NavigateToOtp -> {
+                CircularProgressIndicator()
+            }
         }
     }
 }
@@ -87,6 +112,8 @@ private fun LoginContent(
     data: LoginUiState.Success,
     onEvent: (LoginUiEvent) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
             .padding(24.dp)
@@ -100,15 +127,28 @@ private fun LoginContent(
             fontWeight = FontWeight.Bold
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.login_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Using our custom component!
         PrimaryTextField(
             value = data.email,
             onValueChange = { onEvent(LoginUiEvent.OnEmailChanged(it)) },
             label = stringResource(R.string.label_email),
+            leadingIcon = Icons.Default.Email,
             isError = data.emailError != null,
-            errorMessage = data.emailError
+            errorMessage = data.emailError,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -117,23 +157,36 @@ private fun LoginContent(
             value = data.password,
             onValueChange = { onEvent(LoginUiEvent.OnPasswordChanged(it)) },
             label = stringResource(R.string.label_password),
+            leadingIcon = Icons.Default.Lock,
             isPassword = true,
             isError = data.passwordError != null,
-            errorMessage = data.passwordError
+            errorMessage = data.passwordError,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+                onEvent(LoginUiEvent.OnSubmitClicked)
+            })
         )
+
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            TextButton(onClick = { onEvent(LoginUiEvent.OnForgotPasswordClicked) }) {
+                Text(stringResource(R.string.action_forgot_password))
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
-            onClick = { onEvent(LoginUiEvent.OnSubmitClicked) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Text(
-                text = stringResource(R.string.action_login),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+        PrimaryButton(
+        text = stringResource(R.string.action_login),
+        enabled = data.email.isNotBlank() && data.password.isNotBlank(),
+        onClick = {
+            focusManager.clearFocus()
+            onEvent(LoginUiEvent.OnSubmitClicked)
         }
+    )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -142,6 +195,7 @@ private fun LoginContent(
         }
     }
 }
+
 
 // 4. Previews
 @Preview(showBackground = true)

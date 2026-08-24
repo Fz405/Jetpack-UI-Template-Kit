@@ -12,6 +12,7 @@ sealed interface LoginUiState {
     ) : LoginUiState
 
     data class Error(val message: String) : LoginUiState
+    data class NavigateToOtp(val email: String) : LoginUiState
 }
 
 sealed interface LoginUiEvent {
@@ -20,4 +21,5 @@ sealed interface LoginUiEvent {
     data object OnSubmitClicked : LoginUiEvent
     data object OnForgotPasswordClicked : LoginUiEvent
     data object OnSignUpClicked : LoginUiEvent
+    data object OnNavigationHandled : LoginUiEvent
 }

@@ -23,6 +23,13 @@ class SignUpViewModel : ViewModel() {
             is SignUpUiEvent.OnConfirmPasswordChanged -> updateSuccessState { it.copy(confirmPassword = event.password, confirmPasswordError = null) }
             is SignUpUiEvent.OnSubmitClicked -> submitSignUp()
             is SignUpUiEvent.OnLoginClicked -> { /* Handled in UI navigation */ }
+            is SignUpUiEvent.OnNavigationHandled -> {
+                // Resets the state so the user isn't trapped if they press back!
+                val currentState = _uiState.value
+                if (currentState is SignUpUiState.NavigateToOtp) {
+                    _uiState.value = SignUpUiState.Success(email = currentState.email)
+                }
+            }
         }
     }
 
@@ -52,7 +59,7 @@ class SignUpViewModel : ViewModel() {
             _uiState.value = SignUpUiState.Loading
             delay(1500)
             // TODO: Route to success/OTP or show error
-            _uiState.value = SignUpUiState.Error("Sign up failed (Mock Error)")
+            _uiState.value = SignUpUiState.NavigateToOtp(currentState.email)
         }
     }
 

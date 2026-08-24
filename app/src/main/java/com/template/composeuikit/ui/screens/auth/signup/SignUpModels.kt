@@ -15,9 +15,11 @@ sealed interface SignUpUiState {
     ) : SignUpUiState
 
     data class Error(val message: String) : SignUpUiState
+    data class NavigateToOtp(val email: String) : SignUpUiState
 }
 
 sealed interface SignUpUiEvent {
+    data object OnNavigationHandled : SignUpUiEvent
     data class OnNameChanged(val name: String) : SignUpUiEvent
     data class OnEmailChanged(val email: String) : SignUpUiEvent
     data class OnPasswordChanged(val password: String) : SignUpUiEvent

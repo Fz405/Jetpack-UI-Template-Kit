@@ -15,6 +15,7 @@ class LoginViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Success())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
+
     fun onEvent(event: LoginUiEvent) {
         when (event) {
             is LoginUiEvent.OnEmailChanged -> {
@@ -26,6 +27,12 @@ class LoginViewModel : ViewModel() {
             is LoginUiEvent.OnSubmitClicked -> submitLogin()
             is LoginUiEvent.OnForgotPasswordClicked -> { /* Handled in UI navigation */ }
             is LoginUiEvent.OnSignUpClicked -> { /* Handled in UI navigation */ }
+            is LoginUiEvent.OnNavigationHandled -> {
+                val currentState = _uiState.value
+                if (currentState is LoginUiState.NavigateToOtp) {
+                    _uiState.value = LoginUiState.Success(email = currentState.email)
+                }
+            }
         }
     }
 
@@ -51,8 +58,10 @@ class LoginViewModel : ViewModel() {
             _uiState.value = LoginUiState.Loading
             delay(1500) // Mock API delay
             // TODO: Route to success or show error based on actual authentication
-            _uiState.value = LoginUiState.Error("Invalid credentials (Mock Error)")
+            _uiState.value = LoginUiState.NavigateToOtp(currentState.email)
         }
+
+
     }
 
     private fun updateSuccessState(update: (LoginUiState.Success) -> LoginUiState.Success) {
