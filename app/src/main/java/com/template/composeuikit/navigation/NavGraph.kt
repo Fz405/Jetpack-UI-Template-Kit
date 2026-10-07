@@ -55,14 +55,14 @@ fun NavGraphBuilder.authGraph(
             onNavigateToOtp = onNavigateToOtp
         )
     }
-// Wire up the OTP Screen!
-    composable(route = Screen.Otp.route) { backStackEntry ->
-        val email = backStackEntry.arguments?.getString("email") ?: ""
+}
 
-        OtpScreen(
-            email = email,
-            onNavigateBack = onNavigateBack,
-            onNavigateToHome = onNavigateToHome
+fun NavGraphBuilder.socialGraph(
+    onNavigateBack: () -> Unit
+) {
+    composable(route = Screen.UserProfile.route) {
+        com.template.composeuikit.ui.screens.social.user_profile.UserProfileScreen(
+            onNavigateUp = onNavigateBack
         )
     }
 }

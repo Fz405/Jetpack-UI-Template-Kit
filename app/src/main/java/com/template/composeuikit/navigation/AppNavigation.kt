@@ -57,6 +57,13 @@ fun AppNavigation() {
             },
 
         )
+
+        socialGraph(
+            onNavigateBack = {
+                navController.popBackStack()
+            }
+        )
+
         composable(route = Screen.MainScreen.route) {
             MainScreenLayout()
         }

@@ -57,4 +57,12 @@
     <string name="product_mock_1">Premium Wireless Headphones</string>
     <string name="product_mock_2">Mechanical Gaming Keyboard</string>
     <string name="product_mock_3">Ergonomic Office Mouse</string>
+    <!-- Social - User Profile -->
+    <string name="user_profile_title">User Profile</string>
+    <string name="label_username">Username</string>
+    <string name="label_bio">Bio</string>
+    <string name="action_save">Save Changes</string>
+    <string name="user_profile_loading">Loading profile...</string>
+    <string name="user_profile_save_success">Profile updated successfully!</string>
+    <string name="error_username_invalid">Username must be at least 3 characters</string>
 </resources>
